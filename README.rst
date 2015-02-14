@@ -19,29 +19,63 @@ import logging;
 DESCRIPTION
 ===========
 
-Varnish vmod written out of a need to log response body.
-Logs to syslog.
+Vmod for logging client request, backend response, both header and body, for Varnish 3.0.
 
 FUNCTIONS
 =========
 
-log_obj_body()
+log_client_req
 --------------
+
+Prototype
+        ::
+
+                log_client_req()
+Return value
+        VOID
+Description
+        Logs client request first line and headers to syslog LOG_LOCAL0|LOG_INFO
+        
+Example
+        ::
+
+                logging.log_client_req();
+
+
+log_beresp
+----------
+
+Prototype
+        ::
+
+                log_beresp()
+Return value
+	VOID
+Description
+	Logs backend response first line and  headers to syslog LOG_LOCAL0|LOG_INFO
+        WARNING:To be called only from vcl_fetch, else worker process will crash. 
+Example
+        ::
+
+                logging.log_beresp();
+
+log_obj_body
+------------
 
 Prototype
         ::
 
                 log_obj_body()
 Return value
-	VOID
+        VOID
 Description
-	Logs backend response body to syslog LOG_LEVEL0|LOG_INFO
-        Warning: To be called only from vcl_deliver, else worker process will crash.
-
+        Logs backend response body to syslog LOG_LOCAL0|LOG_INFO
+        WARNING:To be called only from vcl_deliver, else worker process will crash.
 Example
         ::
 
                 logging.log_obj_body();
+
 
 INSTALLATION
 ============
@@ -66,8 +100,8 @@ Make targets:
 HISTORY
 =======
 
-This manual page was released as part of the libvmod-example package,
-written out of a need to log response body.
+This manual page was released as part of the libvmod-logging package,
+written out of need for logging http response body.
 
 For further examples and inspiration check out the vmod directory:
 
