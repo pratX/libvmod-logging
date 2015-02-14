@@ -1,0 +1,11 @@
+vcc_if.lo: vcc_if.c /usr/include/stdc-predef.h \
+ /home/pratikku/vmod_build/Varnish-Cache/include/vrt.h vcc_if.h \
+ /home/pratikku/vmod_build/Varnish-Cache/include/vmod_abi.h
+
+/usr/include/stdc-predef.h:
+
+/home/pratikku/vmod_build/Varnish-Cache/include/vrt.h:
+
+vcc_if.h:
+
+/home/pratikku/vmod_build/Varnish-Cache/include/vmod_abi.h:
