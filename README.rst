@@ -1,60 +1,50 @@
 ============
-vmod_example
+vmod_logging
 ============
 
 ----------------------
-Varnish Example Module
+Varnish Logging Module
 ----------------------
-Please ignore this README
 
-:Author: Martin Blix Grydeland
-:Date: 2011-05-26
+:Author: Pratik Kumar
+:Date: 2015-02-14
 :Version: 1.0
 :Manual section: 3
 
 SYNOPSIS
 ========
 
-import example;
+import logging;
 
 DESCRIPTION
 ===========
 
-Example Varnish vmod demonstrating how to write an out-of-tree Varnish vmod
-for Varnish 3.0.
-
-Implements the traditional Hello World as a vmod.
+Varnish vmod written out of a need to log response body.
+Logs to syslog.
 
 FUNCTIONS
 =========
 
-hello
------
+log_obj_body()
+--------------
 
 Prototype
         ::
 
-                hello(STRING S)
+                log_obj_body()
 Return value
-	STRING
+	VOID
 Description
-	Returns "Hello, " prepended to S
+	Logs backend response body to syslog LOG_LEVEL0|LOG_INFO
+        Warning: To be called only from vcl_deliver, else worker process will crash.
+
 Example
         ::
 
-                set resp.http.hello = example.hello("World");
+                logging.log_obj_body();
 
 INSTALLATION
 ============
-
-This is an example skeleton for developing out-of-tree Varnish
-vmods available from the 3.0 release. It implements the "Hello, World!" 
-as a vmod callback. Not particularly useful in good hello world 
-tradition,but demonstrates how to get the glue around a vmod working.
-
-The source tree is based on autotools to configure the building, and
-does also have the necessary bits in place to do functional unit tests
-using the varnishtest tool.
 
 Usage::
 
@@ -72,31 +62,15 @@ Make targets:
 
 * make - builds the vmod
 * make install - installs your vmod in `VMODDIR`
-* make check - runs the unit tests in ``src/tests/*.vtc``
-
-In your VCL you could then use this vmod along the following lines::
-        
-        import example;
-
-        sub vcl_deliver {
-                # This sets resp.http.hello to "Hello, World"
-                set resp.http.hello = example.hello("World");
-        }
 
 HISTORY
 =======
 
 This manual page was released as part of the libvmod-example package,
-demonstrating how to create an out-of-tree Varnish vmod.
+written out of a need to log response body.
 
 For further examples and inspiration check out the vmod directory:
 
     https://www.varnish-cache.org/vmods
 
-COPYRIGHT
-=========
 
-This document is licensed under the same license as the
-libvmod-example project. See LICENSE for details.
-
-* Copyright (c) 2011-2014 Varnish Software
