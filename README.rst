@@ -1,4 +1,3 @@
-PLEASE IGNORE THIS README
 ============
 vmod_example
 ============
@@ -6,6 +5,7 @@ vmod_example
 ----------------------
 Varnish Example Module
 ----------------------
+Please ignore this README
 
 :Author: Martin Blix Grydeland
 :Date: 2011-05-26
