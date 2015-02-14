@@ -37,18 +37,22 @@ init_function(struct vmod_priv *priv, const struct VCL_conf *conf)
 }
 
 
-void
-vmod_log_all(struct sess *sp){
+const char *
+_obj_body(struct sess *sp){
     struct storage *st;
     struct buf_t buf = {NULL, 0, 4 * 1024};
-    printf("Allocating 4kB memory\n");
+    //printf("Allocating 4kB memory\n");
     BUF_GROW(&buf);
-    printf("Allocated 4kB memory\n");
-    printf("Checking is sess *sp is notnull\n");
+    //printf("Allocated 4kB memory\n");
+    //printf("Checking is sess *sp is notnull\n");
     CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
-    printf("sp is not null\n");
+    //printf("sp is not null\n");
+    strcpy(buf.ptr, "\nObjBody:\n");
+    buf.len += strlen("\nObjBody:\n");
+
+    /* Place beresp body in buf */
     if (!sp->obj->gziped) {
-        printf("obj is not gziped\n");
+        //printf("obj is not gziped\n");
         VTAILQ_FOREACH(st, &sp->obj->store, list) {
             CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
             CHECK_OBJ_NOTNULL(st, STORAGE_MAGIC);
@@ -57,7 +61,7 @@ vmod_log_all(struct sess *sp){
             buf.len += st->len;
         }
     } else {
-        printf("obj is gzipped\n");
+        //printf("obj is gzipped\n");
         struct vgz *vg;
         char obuf[params->gzip_stack_buffer];
         ssize_t obufl = 0;
@@ -83,9 +87,126 @@ vmod_log_all(struct sess *sp){
     }
     BUF_RESERVE(&buf, 1);
     buf.ptr[buf.len] = '\0';
-    printf("Printing obj:\n%s",buf.ptr);
-    syslog((LOG_LOCAL0|LOG_INFO), "ResponseBody: %s\n", buf.ptr);
-    free(buf.ptr);
+    //printf("Printing obj:\n%s",buf.ptr);
+    return buf.ptr;
+    //syslog((LOG_LOCAL0|LOG_INFO), "ResponseBody: %s\n", buf.ptr);
+    //free(buf.ptr);
 }
 
 
+const char *
+_beresp(struct sess *sp){
+    struct buf_t buf = {NULL, 0, 4 * 1024};
+    //printf("Allocating 4kB memory\n");
+    BUF_GROW(&buf);
+    //printf("Allocated 4kB memory\n");
+    //printf("Checking is sess *sp is notnull\n");
+    CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
+    //printf("sp is not null\n");
+    /* Place beresp headers in buf */
+    int i, src_str_len;
+    strcpy(buf.ptr,"BackendResponse: ");
+    buf.len += strlen(buf.ptr);
+    //printf("%s\n",buf.ptr);
+
+    src_str_len = strlen(sp->wrk->beresp->hd[HTTP_HDR_RESPONSE].b);
+    BUF_RESERVE(&buf, src_str_len + 1);
+    strcat(buf.ptr , sp->wrk->beresp->hd[HTTP_HDR_RESPONSE].b );
+    strcat(buf.ptr, "\n");
+    buf.len += (src_str_len + 1);
+
+    src_str_len = strlen(sp->wrk->beresp->hd[HTTP_HDR_STATUS].b);
+    BUF_RESERVE(&buf, src_str_len + 1);
+    strcat(buf.ptr , sp->wrk->beresp->hd[HTTP_HDR_STATUS].b );
+    strcat(buf.ptr, "\n");
+    buf.len += (src_str_len + 1);
+
+    src_str_len = strlen(sp->wrk->beresp->hd[HTTP_HDR_PROTO].b);
+    BUF_RESERVE(&buf, src_str_len + 1);
+    strcat(buf.ptr , sp->wrk->beresp->hd[HTTP_HDR_PROTO].b );
+    strcat(buf.ptr, "\n");
+    buf.len += (src_str_len + 1);
+
+
+    for(i=HTTP_HDR_FIRST; i < sp->wrk->beresp->nhd; ++i){
+        //printf("%s\n",sp->wrk->beresp->hd[i].b);
+        src_str_len = strlen(sp->wrk->beresp->hd[i].b);
+        BUF_RESERVE(&buf, src_str_len + 1);
+        strcat(buf.ptr , sp->wrk->beresp->hd[i].b );
+        strcat(buf.ptr, "\n");
+        buf.len += (src_str_len + 1);
+    }
+    return buf.ptr;
+}
+
+const char *
+_client_req(struct sess *sp){
+    struct buf_t buf = {NULL, 0, 4 * 1024};
+    //printf("Allocating 4kB memory\n");
+    BUF_GROW(&buf);
+    //printf("Allocated 4kB memory\n");
+    //printf("Checking is sess *sp is notnull\n");
+    CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
+    //printf("sp is not null\n");
+    /* Place beresp headers in buf */
+    int i, src_str_len;
+    strcpy(buf.ptr,"ClientRequest: ");
+    buf.len += strlen(buf.ptr);
+    //printf("%s\n",buf.ptr);
+
+    src_str_len = strlen(sp->http->hd[HTTP_HDR_REQ].b);
+    BUF_RESERVE(&buf, src_str_len + 1);
+    strcat(buf.ptr , sp->http->hd[HTTP_HDR_REQ].b );
+    strcat(buf.ptr, "\n");
+    buf.len += (src_str_len + 1);
+
+    src_str_len = strlen(sp->http->hd[HTTP_HDR_URL].b);
+    BUF_RESERVE(&buf, src_str_len + 1);
+    strcat(buf.ptr , sp->http->hd[HTTP_HDR_URL].b );
+    strcat(buf.ptr, "\n");
+    buf.len += (src_str_len + 1);
+
+    src_str_len = strlen(sp->http->hd[HTTP_HDR_PROTO].b);
+    BUF_RESERVE(&buf, src_str_len + 1);
+    strcat(buf.ptr , sp->http->hd[HTTP_HDR_PROTO].b );
+    strcat(buf.ptr, "\n");
+    buf.len += (src_str_len + 1);
+
+    for(i=HTTP_HDR_FIRST; i < sp->http->nhd; ++i){
+        //printf("%s\n",sp->http->hd[i].b);
+        src_str_len = strlen(sp->http->hd[i].b);
+        BUF_RESERVE(&buf, src_str_len + 1);
+        strcat(buf.ptr , sp->http->hd[i].b );
+        strcat(buf.ptr, "\n");
+        buf.len += (src_str_len + 1);
+    }
+    return buf.ptr;
+}
+
+void vmod_log_beresp(struct sess *sp){
+    const char *beresp_str = _beresp(sp);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s\n", beresp_str);
+    free((void *)beresp_str);  
+}
+
+void vmod_log_obj_body(struct sess *sp){
+    const char *obj_body_str = _obj_body(sp);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s\n", obj_body_str);
+    free((void *)obj_body_str);
+}
+
+void vmod_log_client_req(struct sess *sp){
+    const char *client_req_str = _client_req(sp);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s\n", client_req_str);
+    free((void *)client_req_str);
+}
+
+/*void vmod_log_all(struct sess *sp){
+    const char *beresp_str = _beresp(sp);
+    const char *obj_body_str = _obj_body(sp);
+    const char *client_req_str = _client_req(sp);
+    syslog((LOG_LOCAL0|LOG_INFO),"%s\n\n%s\n\n%s\n\n", client_req_str, beresp_str, obj_body_str);
+    free((void *)beresp_str);
+    free((void *)obj_body_str);
+    free((void *)client_req_str);
+}*/
