@@ -1,3 +1,4 @@
+PLEASE IGNORE THIS README
 ============
 vmod_example
 ============
