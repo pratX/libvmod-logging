@@ -47,8 +47,8 @@ _obj_body(struct sess *sp){
     //printf("Checking is sess *sp is notnull\n");
     CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
     //printf("sp is not null\n");
-    strcpy(buf.ptr, "\nObjBody:\n");
-    buf.len += strlen("\nObjBody:\n");
+    //strcpy(buf.ptr, "\nObjBody:\n");
+    //buf.len += strlen("\nObjBody:\n");
 
     /* Place beresp body in buf */
     if (!sp->obj->gziped) {
@@ -105,26 +105,26 @@ _beresp(struct sess *sp){
     //printf("sp is not null\n");
     /* Place beresp headers in buf */
     int i, src_str_len;
-    strcpy(buf.ptr,"BackendResponse: ");
-    buf.len += strlen(buf.ptr);
+    //strcpy(buf.ptr,"BackendResponse: ");
+    //buf.len += strlen(buf.ptr);
     //printf("%s\n",buf.ptr);
 
     src_str_len = strlen(sp->wrk->beresp->hd[HTTP_HDR_RESPONSE].b);
     BUF_RESERVE(&buf, src_str_len + 1);
     strcat(buf.ptr , sp->wrk->beresp->hd[HTTP_HDR_RESPONSE].b );
-    strcat(buf.ptr, "\n");
+    strcat(buf.ptr, "|");
     buf.len += (src_str_len + 1);
 
     src_str_len = strlen(sp->wrk->beresp->hd[HTTP_HDR_STATUS].b);
     BUF_RESERVE(&buf, src_str_len + 1);
     strcat(buf.ptr , sp->wrk->beresp->hd[HTTP_HDR_STATUS].b );
-    strcat(buf.ptr, "\n");
+    strcat(buf.ptr, "|");
     buf.len += (src_str_len + 1);
 
     src_str_len = strlen(sp->wrk->beresp->hd[HTTP_HDR_PROTO].b);
     BUF_RESERVE(&buf, src_str_len + 1);
     strcat(buf.ptr , sp->wrk->beresp->hd[HTTP_HDR_PROTO].b );
-    strcat(buf.ptr, "\n");
+    strcat(buf.ptr, "|");
     buf.len += (src_str_len + 1);
 
 
@@ -133,7 +133,7 @@ _beresp(struct sess *sp){
         src_str_len = strlen(sp->wrk->beresp->hd[i].b);
         BUF_RESERVE(&buf, src_str_len + 1);
         strcat(buf.ptr , sp->wrk->beresp->hd[i].b );
-        strcat(buf.ptr, "\n");
+        strcat(buf.ptr, "|");
         buf.len += (src_str_len + 1);
     }
     return buf.ptr;
@@ -150,26 +150,26 @@ _client_req(struct sess *sp){
     //printf("sp is not null\n");
     /* Place beresp headers in buf */
     int i, src_str_len;
-    strcpy(buf.ptr,"ClientRequest: ");
-    buf.len += strlen(buf.ptr);
+    //strcpy(buf.ptr,"ClientRequest: ");
+    //buf.len += strlen(buf.ptr);
     //printf("%s\n",buf.ptr);
 
     src_str_len = strlen(sp->http->hd[HTTP_HDR_REQ].b);
     BUF_RESERVE(&buf, src_str_len + 1);
     strcat(buf.ptr , sp->http->hd[HTTP_HDR_REQ].b );
-    strcat(buf.ptr, "\n");
+    strcat(buf.ptr, "|");
     buf.len += (src_str_len + 1);
 
     src_str_len = strlen(sp->http->hd[HTTP_HDR_URL].b);
     BUF_RESERVE(&buf, src_str_len + 1);
     strcat(buf.ptr , sp->http->hd[HTTP_HDR_URL].b );
-    strcat(buf.ptr, "\n");
+    strcat(buf.ptr, "|");
     buf.len += (src_str_len + 1);
 
     src_str_len = strlen(sp->http->hd[HTTP_HDR_PROTO].b);
     BUF_RESERVE(&buf, src_str_len + 1);
     strcat(buf.ptr , sp->http->hd[HTTP_HDR_PROTO].b );
-    strcat(buf.ptr, "\n");
+    strcat(buf.ptr, "|");
     buf.len += (src_str_len + 1);
 
     for(i=HTTP_HDR_FIRST; i < sp->http->nhd; ++i){
@@ -177,27 +177,27 @@ _client_req(struct sess *sp){
         src_str_len = strlen(sp->http->hd[i].b);
         BUF_RESERVE(&buf, src_str_len + 1);
         strcat(buf.ptr , sp->http->hd[i].b );
-        strcat(buf.ptr, "\n");
+        strcat(buf.ptr, "|");
         buf.len += (src_str_len + 1);
     }
     return buf.ptr;
 }
 
-void vmod_log_beresp(struct sess *sp){
+void vmod_log_beresp(struct sess *sp, const char *str){
     const char *beresp_str = _beresp(sp);
-    syslog((LOG_LOCAL0|LOG_INFO), "%s\n", beresp_str);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s%s", str, beresp_str);
     free((void *)beresp_str);  
 }
 
-void vmod_log_obj_body(struct sess *sp){
+void vmod_log_obj_body(struct sess *sp, const char *str){
     const char *obj_body_str = _obj_body(sp);
-    syslog((LOG_LOCAL0|LOG_INFO), "%s\n", obj_body_str);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s%s", str, obj_body_str);
     free((void *)obj_body_str);
 }
 
-void vmod_log_client_req(struct sess *sp){
+void vmod_log_client_req(struct sess *sp, const char *str){
     const char *client_req_str = _client_req(sp);
-    syslog((LOG_LOCAL0|LOG_INFO), "%s\n", client_req_str);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s%s", str, client_req_str);
     free((void *)client_req_str);
 }
 
