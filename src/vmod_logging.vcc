@@ -1,5 +1,3 @@
 Module logging
 Init init_function
-Function VOID log_beresp(STRING)
 Function VOID log_obj_body(STRING)
-Function VOID log_client_req(STRING)

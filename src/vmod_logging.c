@@ -32,7 +32,7 @@ struct buf_t {
 int
 init_function(struct vmod_priv *priv, const struct VCL_conf *conf)
 {
-        openlog(NULL, (LOG_CONS|LOG_NDELAY|LOG_PID), LOG_LOCAL0); 
+        openlog(NULL, (LOG_CONS|LOG_NDELAY|LOG_PID), LOG_LOCAL4); 
 	return (0);
 }
 
@@ -94,7 +94,7 @@ _obj_body(struct sess *sp){
 }
 
 
-const char *
+/*const char *
 _beresp(struct sess *sp){
     struct buf_t buf = {NULL, 0, 4 * 1024};
     //printf("Allocating 4kB memory\n");
@@ -103,7 +103,7 @@ _beresp(struct sess *sp){
     //printf("Checking is sess *sp is notnull\n");
     CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
     //printf("sp is not null\n");
-    /* Place beresp headers in buf */
+    // Place beresp headers in buf 
     int i, src_str_len;
     //strcpy(buf.ptr,"BackendResponse: ");
     //buf.len += strlen(buf.ptr);
@@ -136,10 +136,11 @@ _beresp(struct sess *sp){
         strcat(buf.ptr, "|");
         buf.len += (src_str_len + 1);
     }
+    printf("Printing Backend Response: %s", buf.ptr);
     return buf.ptr;
-}
+} */
 
-const char *
+/* const char *
 _client_req(struct sess *sp){
     struct buf_t buf = {NULL, 0, 4 * 1024};
     //printf("Allocating 4kB memory\n");
@@ -148,7 +149,7 @@ _client_req(struct sess *sp){
     //printf("Checking is sess *sp is notnull\n");
     CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
     //printf("sp is not null\n");
-    /* Place beresp headers in buf */
+    // Place beresp headers in buf 
     int i, src_str_len;
     //strcpy(buf.ptr,"ClientRequest: ");
     //buf.len += strlen(buf.ptr);
@@ -180,26 +181,27 @@ _client_req(struct sess *sp){
         strcat(buf.ptr, "|");
         buf.len += (src_str_len + 1);
     }
+    printf("Printing ClientRequest: %s",buf.ptr);
     return buf.ptr;
-}
+} */
 
-void vmod_log_beresp(struct sess *sp, const char *str){
+/*void vmod_log_beresp(struct sess *sp, const char *str){
     const char *beresp_str = _beresp(sp);
-    syslog((LOG_LOCAL0|LOG_INFO), "%s%s", str, beresp_str);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s %s", str, beresp_str);
     free((void *)beresp_str);  
-}
+}*/
 
 void vmod_log_obj_body(struct sess *sp, const char *str){
     const char *obj_body_str = _obj_body(sp);
-    syslog((LOG_LOCAL0|LOG_INFO), "%s%s", str, obj_body_str);
+    syslog((LOG_LOCAL4|LOG_INFO), "%s %s", str, obj_body_str);
     free((void *)obj_body_str);
 }
 
-void vmod_log_client_req(struct sess *sp, const char *str){
+/*void vmod_log_client_req(struct sess *sp, const char *str){
     const char *client_req_str = _client_req(sp);
-    syslog((LOG_LOCAL0|LOG_INFO), "%s%s", str, client_req_str);
+    syslog((LOG_LOCAL0|LOG_INFO), "%s %s", str, client_req_str);
     free((void *)client_req_str);
-}
+}*/
 
 /*void vmod_log_all(struct sess *sp){
     const char *beresp_str = _beresp(sp);
