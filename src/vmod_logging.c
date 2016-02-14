@@ -41,14 +41,8 @@ const char *
 _obj_body(struct sess *sp){
     struct storage *st;
     struct buf_t buf = {NULL, 0, 4 * 1024};
-    //printf("Allocating 4kB memory\n");
     BUF_GROW(&buf);
-    //printf("Allocated 4kB memory\n");
-    //printf("Checking is sess *sp is notnull\n");
     CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
-    //printf("sp is not null\n");
-    //strcpy(buf.ptr, "\nObjBody:\n");
-    //buf.len += strlen("\nObjBody:\n");
 
     /* Place beresp body in buf */
     if (!sp->obj->gziped) {
