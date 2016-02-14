@@ -19,45 +19,11 @@ import logging;
 DESCRIPTION
 ===========
 
-Vmod for logging client request, backend response, both header and body, for Varnish 3.0.
+Vmod for logging backend response body, for Varnish 3.0.
+Its a wrapper over _object_read function in https://github.com/aivarsk/libvmod-rewrite
 
 FUNCTIONS
 =========
-
-log_client_req
---------------
-
-Prototype
-        ::
-
-                log_client_req()
-Return value
-        VOID
-Description
-        Logs client request first line and headers to syslog LOG_LOCAL0|LOG_INFO
-        
-Example
-        ::
-
-                logging.log_client_req();
-
-
-log_beresp
-----------
-
-Prototype
-        ::
-
-                log_beresp()
-Return value
-	VOID
-Description
-	Logs backend response first line and  headers to syslog LOG_LOCAL0|LOG_INFO
-        WARNING:To be called only from vcl_fetch, else worker process will crash. 
-Example
-        ::
-
-                logging.log_beresp();
 
 log_obj_body
 ------------
@@ -65,23 +31,19 @@ log_obj_body
 Prototype
         ::
 
-                log_obj_body()
+                log_obj_body(STRING PREFIX)
 Return value
         VOID
 Description
         Logs backend response body to syslog LOG_LOCAL0|LOG_INFO
         WARNING:To be called only from vcl_deliver, else worker process will crash.
-Example
-        ::
-
-                logging.log_obj_body();
-
 
 INSTALLATION
 ============
 
 Usage::
 
+ ./autogen.sh 
  ./configure VARNISHSRC=DIR [VMODDIR=DIR]
 
 `VARNISHSRC` is the directory of the Varnish source tree for which to
