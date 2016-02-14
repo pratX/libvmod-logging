@@ -35,7 +35,7 @@ Prototype
 Return value
         VOID
 Description
-        Logs backend response body to syslog LOG_LOCAL0|LOG_INFO
+        Logs backend response body to syslog LOG_LOCAL4|LOG_INFO
 
         WARNING:To be called only from vcl_deliver, else worker process will crash.
 
